@@ -24,4 +24,92 @@
     <content><![CDATA[<p>折腾了一天多，终于弄出来了，开心^o^</p>
 ]]></content>
   </entry>
+  <entry>
+    <title>安全渗透初识</title>
+    <url>/2020/10/30/%E5%AE%89%E5%85%A8%E6%B8%97%E9%80%8F%E5%88%9D%E8%AF%86/</url>
+    <content><![CDATA[<hr>
+<h2 id="主机安全"><a href="#主机安全" class="headerlink" title="主机安全"></a>主机安全</h2><p>存在问题的端口</p>
+<table>
+<thead>
+<tr>
+<th>端口号</th>
+<th>端口说明</th>
+<th>攻击技巧</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>25</td>
+<td>Smtp 邮局服务 smtp（邮件协议）</td>
+<td>并不认证发件人信息导致邮件伪造</td>
+</tr>
+<tr>
+<td>53</td>
+<td>DNS 域名解析</td>
+<td>DNS区域传送导致解析记录泄漏</td>
+</tr>
+<tr>
+<td>161</td>
+<td>Snmp 网络管理</td>
+<td>弱口令</td>
+</tr>
+<tr>
+<td>389</td>
+<td>Ldap目录访问管理</td>
+<td>注入攻击与未授权访问</td>
+</tr>
+<tr>
+<td>873</td>
+<td>Rsync 远程同步</td>
+<td>未授权访问</td>
+</tr>
+<tr>
+<td>1352</td>
+<td>Lotus 客户端RPC接口</td>
+<td>弱口令、信息泄漏</td>
+</tr>
+<tr>
+<td>2181</td>
+<td>Zookeeper 服务封装</td>
+<td>未授权访问</td>
+</tr>
+<tr>
+<td>4848</td>
+<td>Glassfish J2EE服务</td>
+<td>弱口令、认证绕过漏洞</td>
+</tr>
+<tr>
+<td>5000</td>
+<td>sybase/DB2 数据库</td>
+<td>弱口令</td>
+</tr>
+<tr>
+<td>5432</td>
+<td>Postgresql 数据库</td>
+<td>弱口令</td>
+</tr>
+<tr>
+<td>6379</td>
+<td>Redis 内存数据库</td>
+<td>未授权访问、弱口令</td>
+</tr>
+<tr>
+<td>9200/9300</td>
+<td>Elasticsearch 内容索引数据库</td>
+<td>未授权访问</td>
+</tr>
+<tr>
+<td>11211</td>
+<td>Memcache 内存缓存系统</td>
+<td>未授权访问</td>
+</tr>
+<tr>
+<td>27017 / 28017</td>
+<td>Mongodb 类JSON数据库</td>
+<td>未授权访问、弱口令</td>
+</tr>
+</tbody></table>
+<h2 id="nmap使用"><a href="#nmap使用" class="headerlink" title="nmap使用"></a>nmap使用</h2><p><img src="https://upload-images.jianshu.io/upload_images/3601906-08bd9b540ad32c25.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="123.png"></p>
+<p>linux 系统命令集<br><img src="/images/linux_perf_tools_full.png" alt="images"></p>
+]]></content>
+  </entry>
 </search>
