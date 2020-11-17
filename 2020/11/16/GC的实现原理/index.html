@@ -22,20 +22,17 @@
 
   <meta name="description" content="安全知识初探，一些个人认为比较重要的摘要">
 <meta property="og:type" content="article">
-<meta property="og:title" content="安全渗透初识">
-<meta property="og:url" content="http://example.com/2020/10/30/%E5%AE%89%E5%85%A8%E6%B8%97%E9%80%8F%E5%88%9D%E8%AF%86/index.html">
+<meta property="og:title" content="GC的实现原理--垃圾回收机制">
+<meta property="og:url" content="http://example.com/2020/11/16/GC%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="阿布小宇宙">
 <meta property="og:description" content="安全知识初探，一些个人认为比较重要的摘要">
 <meta property="og:locale">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/3601906-08bd9b540ad32c25.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://example.com/images/linux_perf_tools_full.png">
-<meta property="article:published_time" content="2020-10-30T06:28:51.000Z">
-<meta property="article:modified_time" content="2020-10-30T10:32:44.084Z">
+<meta property="article:published_time" content="2020-11-16T03:33:51.000Z">
+<meta property="article:modified_time" content="2020-11-16T03:45:24.298Z">
 <meta property="article:author" content="haoweiking">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/3601906-08bd9b540ad32c25.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
-<link rel="canonical" href="http://example.com/2020/10/30/%E5%AE%89%E5%85%A8%E6%B8%97%E9%80%8F%E5%88%9D%E8%AF%86/">
+<link rel="canonical" href="http://example.com/2020/11/16/GC%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/">
 
 
 <script id="page-configurations">
@@ -48,7 +45,7 @@
   };
 </script>
 
-  <title>安全渗透初识 | 阿布小宇宙</title>
+  <title>GC的实现原理--垃圾回收机制 | 阿布小宇宙</title>
   
 
 
@@ -190,7 +187,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/30/%E5%AE%89%E5%85%A8%E6%B8%97%E9%80%8F%E5%88%9D%E8%AF%86/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/16/GC%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -203,7 +200,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          安全渗透初识
+          GC的实现原理--垃圾回收机制
         </h1>
 
         <div class="post-meta">
@@ -214,11 +211,11 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-10-30 14:28:51 / Modified: 18:32:44" itemprop="dateCreated datePublished" datetime="2020-10-30T14:28:51+08:00">2020-10-30</time>
+              <time title="Created: 2020-11-16 11:33:51 / Modified: 11:45:24" itemprop="dateCreated datePublished" datetime="2020-11-16T11:33:51+08:00">2020-11-16</time>
             </span>
 
           
-            <span id="/2020/10/30/%E5%AE%89%E5%85%A8%E6%B8%97%E9%80%8F%E5%88%9D%E8%AF%86/" class="post-meta-item leancloud_visitors" data-flag-title="安全渗透初识" title="Views">
+            <span id="/2020/11/16/GC%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" class="post-meta-item leancloud_visitors" data-flag-title="GC的实现原理--垃圾回收机制" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -233,8 +230,8 @@
       </span>
       <span class="post-meta-item-text">Disqus: </span>
     
-    <a title="disqus" href="/2020/10/30/%E5%AE%89%E5%85%A8%E6%B8%97%E9%80%8F%E5%88%9D%E8%AF%86/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/10/30/安全渗透初识/" itemprop="commentCount"></span>
+    <a title="disqus" href="/2020/11/16/GC%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2020/11/16/GC的实现原理/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -250,89 +247,27 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <hr>
-<h2 id="主机安全"><a href="#主机安全" class="headerlink" title="主机安全"></a>主机安全</h2><p>存在问题的端口</p>
-<table>
-<thead>
-<tr>
-<th>端口号</th>
-<th>端口说明</th>
-<th>攻击技巧</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>25</td>
-<td>Smtp 邮局服务 smtp（邮件协议）</td>
-<td>并不认证发件人信息导致邮件伪造</td>
-</tr>
-<tr>
-<td>53</td>
-<td>DNS 域名解析</td>
-<td>DNS区域传送导致解析记录泄漏</td>
-</tr>
-<tr>
-<td>161</td>
-<td>Snmp 网络管理</td>
-<td>弱口令</td>
-</tr>
-<tr>
-<td>389</td>
-<td>Ldap目录访问管理</td>
-<td>注入攻击与未授权访问</td>
-</tr>
-<tr>
-<td>873</td>
-<td>Rsync 远程同步</td>
-<td>未授权访问</td>
-</tr>
-<tr>
-<td>1352</td>
-<td>Lotus 客户端RPC接口</td>
-<td>弱口令、信息泄漏</td>
-</tr>
-<tr>
-<td>2181</td>
-<td>Zookeeper 服务封装</td>
-<td>未授权访问</td>
-</tr>
-<tr>
-<td>4848</td>
-<td>Glassfish J2EE服务</td>
-<td>弱口令、认证绕过漏洞</td>
-</tr>
-<tr>
-<td>5000</td>
-<td>sybase/DB2 数据库</td>
-<td>弱口令</td>
-</tr>
-<tr>
-<td>5432</td>
-<td>Postgresql 数据库</td>
-<td>弱口令</td>
-</tr>
-<tr>
-<td>6379</td>
-<td>Redis 内存数据库</td>
-<td>未授权访问、弱口令</td>
-</tr>
-<tr>
-<td>9200/9300</td>
-<td>Elasticsearch 内容索引数据库</td>
-<td>未授权访问</td>
-</tr>
-<tr>
-<td>11211</td>
-<td>Memcache 内存缓存系统</td>
-<td>未授权访问</td>
-</tr>
-<tr>
-<td>27017 / 28017</td>
-<td>Mongodb 类JSON数据库</td>
-<td>未授权访问、弱口令</td>
-</tr>
-</tbody></table>
-<h2 id="nmap使用"><a href="#nmap使用" class="headerlink" title="nmap使用"></a>nmap使用</h2><p><img src="https://upload-images.jianshu.io/upload_images/3601906-08bd9b540ad32c25.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="123.png"></p>
-<p>linux 系统命令集<br><img src="/images/linux_perf_tools_full.png" alt="images"></p>
+        <p>当一个对象不再被引用的时候，内存回收它占领的空间，以便空间被后来的新对象使用。除了释放没用的对象，垃圾收集也可以清除内存记录碎片。</p>
+<h3 id="引用计数法-Reference-Counting-Collector"><a href="#引用计数法-Reference-Counting-Collector" class="headerlink" title="引用计数法(Reference Counting Collector)"></a>引用计数法(Reference Counting Collector)</h3><p>引用计数法是唯一没有使用根集的垃圾回收的法，该算法使用引用计数器来区分存活对象和不再使用的对象。一般来说，堆中的每个对象对应一个引用计数器。当每一次创建一个对象并赋给一个变量时，引用计数器置为1。当对象被赋给任意变量时，引用计数器每次加1当对象出了作用域后(该对象丢弃不再使用)，引用计数器减1，一旦引用计数器为0，对象就满足了垃圾收集的条件。</p>
+<p>基于引用计数器的垃圾收集器运行较快，不会长时间中断程序执行，适宜地必须 实时运行的程序。但引用计数器增加了程序执行的开销，因为每次对象赋给新的变量，计数器加1，而每次现有对象出了作用域生，计数器减1。</p>
+<p><em>ps：用根集的方法（既有向图的方法）进行内存对象管理，可以消除循环引用的问题．就是说如果有三个对象相互引用，只要他们和根集是不可达的，gc也是可以回收他们．根集的方法精度很高，但是效率低．计数器法精度低（无法处理循环引用），但是执行效率高。</em></p>
+<h3 id="tracing算法-Tracing-Collector"><a href="#tracing算法-Tracing-Collector" class="headerlink" title="tracing算法(Tracing Collector)"></a>tracing算法(Tracing Collector)</h3><p>tracing算法是为了解决引用计数法的问题而提出，它使用了根集的概念。基于tracing算法的垃圾收集器从根集开始扫描，识别出哪些对象可达，哪些对象不可达，并用某种方式标记可达对象，例如对每个可达对象设置一个或多个位。在扫描识别过程中，基于tracing算法的垃圾收集也称为标记和清除 (mark-and-sweep)垃圾收集器。</p>
+<h3 id="compacting算法-Compacting-Collector"><a href="#compacting算法-Compacting-Collector" class="headerlink" title="compacting算法(Compacting Collector)"></a>compacting算法(Compacting Collector)</h3><p>为了解决堆碎片问题，基于tracing的垃圾回收吸收了Compacting算法的思想，在清除的过程中，算法将所有的对象移到堆的一端，堆的另一端就变成了一个相邻的空闲内存区，收集器会对它移动的所有对象的所有引用进行更新，使得这些引用在新的位置能识别原来 的对象。在基于Compacting 算法的收集器的实现中，一般增加句柄和句柄表。</p>
+<h3 id="copying算法-Coping-Collector"><a href="#copying算法-Coping-Collector" class="headerlink" title="copying算法(Coping Collector)"></a>copying算法(Coping Collector)</h3><p>该算法的提出是为了克服句柄的开销和解决堆碎片的垃圾回收。</p>
+<p>将内存分为两个区域(from space和to space)。所有的对象分配内存都分配到from space。在清理非活动对象阶段，把所有标志为活动的对象，copy到to space，之后清楚from space空间。然后互换from sapce和to space的身份。既原先的from space变成to sapce，原先的to space变成from space。每次清理，重复上述过程。</p>
+<p><em>优点：copy算法不理会非活动对象，copy数量仅仅取决为活动对象的数量。并且在copy的同时，整理了heap空间，即，to space的空间使用始终是连续的，内存使用效率得到提高。</em></p>
+<p><em>缺点：划分from space和to space，内存的使用率是1／2。收集器必须复制所有的活动对象，这增加了程序等待时间。</em></p>
+<h3 id="generation算法-Generational-Collector"><a href="#generation算法-Generational-Collector" class="headerlink" title="generation算法(Generational Collector)"></a>generation算法(Generational Collector)</h3><p>来自IBM的一组统计数据：98％的java对象，在创建之后不久就变成了非活动对象；只有2％的对象，会在长时间一直处于活动状态。</p>
+<h4 id="young-generation"><a href="#young-generation" class="headerlink" title="young generation"></a>young generation</h4><p>年轻代分三个区。一个Eden区，两个Survivor区。大部分对象在 Eden区中生成。当Eden区满时，还存活的对象将被复制到Survivor区（两个中的一个），当这个Survivor区满时，此区的存活对象将被复制到另外一个Survivor区，当这个Survivor区也满了的时候，从第一个Survivor区复制过来的并且此时还存活的对象，将被复制到tenured generation。需要注意，Survivor的两个区是对称的，没先后关系，所以同一个区中可能同时存在从Eden复制过来对象，和从前一个Survivor复制过来的对象，而复制到年老区的只有从第一个Survivor去过来的对象。而且，Survivor区总有一个是空的。</p>
+<p>young generation的gc称为minor gc。经过数次minor gc，依旧存活的对象，将被移出young generation，移到tenured generation</p>
+<h4 id="tenured-generation"><a href="#tenured-generation" class="headerlink" title="tenured generation"></a>tenured generation</h4><p>生命周期较长的对象，归入到tenured generation。一般是经过多次minor gc，还 依旧存活的对象，将移入到tenured generation。（当然，在minor gc中如果存活的对象的超过survivor的容量，放不下的对象会直接移入到tenured generation）</p>
+<p>tenured generation的gc称为major gc，就是通常说的full gc。</p>
+<p>采用compactiion算法。由于tenured generaion区域比较大，而且通常对象生命周期都比较长，compaction需要一定时间。所以这部分的gc时间比较长。</p>
+<p>minor gc可能引发full gc。当eden＋from space的空间大于tenured generation区的剩余空间时，会引发full gc。这是悲观算法，要确保eden＋from space的对象如果都存活，必须有足够的tenured generation空间存放这些对象。</p>
+<h4 id="permanent-generation"><a href="#permanent-generation" class="headerlink" title="permanent generation"></a>permanent generation</h4><p>该区域比较稳定，主要用于存放classloader信息，比如类信息和method信息。</p>
+<p>对于spring hibernate这些需要动态类型支持的框架，这个区域需要足够的空间。(这部分空间应该存在于方法区而不是heap中)。</p>
+<h3 id="adaptive算法-Adaptive-Collector"><a href="#adaptive算法-Adaptive-Collector" class="headerlink" title="adaptive算法(Adaptive Collector)"></a>adaptive算法(Adaptive Collector)</h3><p>在特定的情况下，一些垃圾收集算法会优于其它算法。基于Adaptive算法的垃圾收集器就是监控当前堆的使用情况，并将选择适当算法的垃圾收集器。</p>
+<p>转载于<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/7305b10decf1">https://www.jianshu.com/p/7305b10decf1</a></p>
 
     </div>
 
@@ -348,13 +283,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/10/30/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="prev" title="博客搭建">
-      <i class="fa fa-chevron-left"></i> 博客搭建
+    <a href="/2020/10/30/git%E4%BD%BF%E7%94%A8%E6%B5%81%E7%A8%8B/" rel="prev" title="git使用流程">
+      <i class="fa fa-chevron-left"></i> git使用流程
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/10/30/git%E4%BD%BF%E7%94%A8%E6%B5%81%E7%A8%8B/" rel="next" title="git使用流程">
-      git使用流程 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -420,7 +352,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E6%9C%BA%E5%AE%89%E5%85%A8"><span class="nav-number">1.</span> <span class="nav-text">主机安全</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nmap%E4%BD%BF%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">nmap使用</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0%E6%B3%95-Reference-Counting-Collector"><span class="nav-number">1.</span> <span class="nav-text">引用计数法(Reference Counting Collector)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tracing%E7%AE%97%E6%B3%95-Tracing-Collector"><span class="nav-number">2.</span> <span class="nav-text">tracing算法(Tracing Collector)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#compacting%E7%AE%97%E6%B3%95-Compacting-Collector"><span class="nav-number">3.</span> <span class="nav-text">compacting算法(Compacting Collector)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#copying%E7%AE%97%E6%B3%95-Coping-Collector"><span class="nav-number">4.</span> <span class="nav-text">copying算法(Coping Collector)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#generation%E7%AE%97%E6%B3%95-Generational-Collector"><span class="nav-number">5.</span> <span class="nav-text">generation算法(Generational Collector)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#young-generation"><span class="nav-number">5.1.</span> <span class="nav-text">young generation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#tenured-generation"><span class="nav-number">5.2.</span> <span class="nav-text">tenured generation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#permanent-generation"><span class="nav-number">5.3.</span> <span class="nav-text">permanent generation</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#adaptive%E7%AE%97%E6%B3%95-Adaptive-Collector"><span class="nav-number">6.</span> <span class="nav-text">adaptive算法(Adaptive Collector)</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -625,9 +557,9 @@
 </script>
 <script>
   var disqus_config = function() {
-    this.page.url = "http://example.com/2020/10/30/%E5%AE%89%E5%85%A8%E6%B8%97%E9%80%8F%E5%88%9D%E8%AF%86/";
-    this.page.identifier = "2020/10/30/安全渗透初识/";
-    this.page.title = "安全渗透初识";
+    this.page.url = "http://example.com/2020/11/16/GC%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/";
+    this.page.identifier = "2020/11/16/GC的实现原理/";
+    this.page.title = "GC的实现原理--垃圾回收机制";
     };
   NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
     if (window.DISQUS) {

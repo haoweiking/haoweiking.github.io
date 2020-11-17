@@ -1,10 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>GC的实现原理--垃圾回收机制</title>
+    <url>/2020/11/16/GC%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<p>当一个对象不再被引用的时候，内存回收它占领的空间，以便空间被后来的新对象使用。除了释放没用的对象，垃圾收集也可以清除内存记录碎片。</p>
+<h3 id="引用计数法-Reference-Counting-Collector"><a href="#引用计数法-Reference-Counting-Collector" class="headerlink" title="引用计数法(Reference Counting Collector)"></a>引用计数法(Reference Counting Collector)</h3><p>引用计数法是唯一没有使用根集的垃圾回收的法，该算法使用引用计数器来区分存活对象和不再使用的对象。一般来说，堆中的每个对象对应一个引用计数器。当每一次创建一个对象并赋给一个变量时，引用计数器置为1。当对象被赋给任意变量时，引用计数器每次加1当对象出了作用域后(该对象丢弃不再使用)，引用计数器减1，一旦引用计数器为0，对象就满足了垃圾收集的条件。</p>
+<p>基于引用计数器的垃圾收集器运行较快，不会长时间中断程序执行，适宜地必须 实时运行的程序。但引用计数器增加了程序执行的开销，因为每次对象赋给新的变量，计数器加1，而每次现有对象出了作用域生，计数器减1。</p>
+<p><em>ps：用根集的方法（既有向图的方法）进行内存对象管理，可以消除循环引用的问题．就是说如果有三个对象相互引用，只要他们和根集是不可达的，gc也是可以回收他们．根集的方法精度很高，但是效率低．计数器法精度低（无法处理循环引用），但是执行效率高。</em></p>
+<h3 id="tracing算法-Tracing-Collector"><a href="#tracing算法-Tracing-Collector" class="headerlink" title="tracing算法(Tracing Collector)"></a>tracing算法(Tracing Collector)</h3><p>tracing算法是为了解决引用计数法的问题而提出，它使用了根集的概念。基于tracing算法的垃圾收集器从根集开始扫描，识别出哪些对象可达，哪些对象不可达，并用某种方式标记可达对象，例如对每个可达对象设置一个或多个位。在扫描识别过程中，基于tracing算法的垃圾收集也称为标记和清除 (mark-and-sweep)垃圾收集器。</p>
+<h3 id="compacting算法-Compacting-Collector"><a href="#compacting算法-Compacting-Collector" class="headerlink" title="compacting算法(Compacting Collector)"></a>compacting算法(Compacting Collector)</h3><p>为了解决堆碎片问题，基于tracing的垃圾回收吸收了Compacting算法的思想，在清除的过程中，算法将所有的对象移到堆的一端，堆的另一端就变成了一个相邻的空闲内存区，收集器会对它移动的所有对象的所有引用进行更新，使得这些引用在新的位置能识别原来 的对象。在基于Compacting 算法的收集器的实现中，一般增加句柄和句柄表。</p>
+<h3 id="copying算法-Coping-Collector"><a href="#copying算法-Coping-Collector" class="headerlink" title="copying算法(Coping Collector)"></a>copying算法(Coping Collector)</h3><p>该算法的提出是为了克服句柄的开销和解决堆碎片的垃圾回收。</p>
+<p>将内存分为两个区域(from space和to space)。所有的对象分配内存都分配到from space。在清理非活动对象阶段，把所有标志为活动的对象，copy到to space，之后清楚from space空间。然后互换from sapce和to space的身份。既原先的from space变成to sapce，原先的to space变成from space。每次清理，重复上述过程。</p>
+<p><em>优点：copy算法不理会非活动对象，copy数量仅仅取决为活动对象的数量。并且在copy的同时，整理了heap空间，即，to space的空间使用始终是连续的，内存使用效率得到提高。</em></p>
+<p><em>缺点：划分from space和to space，内存的使用率是1／2。收集器必须复制所有的活动对象，这增加了程序等待时间。</em></p>
+<h3 id="generation算法-Generational-Collector"><a href="#generation算法-Generational-Collector" class="headerlink" title="generation算法(Generational Collector)"></a>generation算法(Generational Collector)</h3><p>来自IBM的一组统计数据：98％的java对象，在创建之后不久就变成了非活动对象；只有2％的对象，会在长时间一直处于活动状态。</p>
+<h4 id="young-generation"><a href="#young-generation" class="headerlink" title="young generation"></a>young generation</h4><p>年轻代分三个区。一个Eden区，两个Survivor区。大部分对象在 Eden区中生成。当Eden区满时，还存活的对象将被复制到Survivor区（两个中的一个），当这个Survivor区满时，此区的存活对象将被复制到另外一个Survivor区，当这个Survivor区也满了的时候，从第一个Survivor区复制过来的并且此时还存活的对象，将被复制到tenured generation。需要注意，Survivor的两个区是对称的，没先后关系，所以同一个区中可能同时存在从Eden复制过来对象，和从前一个Survivor复制过来的对象，而复制到年老区的只有从第一个Survivor去过来的对象。而且，Survivor区总有一个是空的。</p>
+<p>young generation的gc称为minor gc。经过数次minor gc，依旧存活的对象，将被移出young generation，移到tenured generation</p>
+<h4 id="tenured-generation"><a href="#tenured-generation" class="headerlink" title="tenured generation"></a>tenured generation</h4><p>生命周期较长的对象，归入到tenured generation。一般是经过多次minor gc，还 依旧存活的对象，将移入到tenured generation。（当然，在minor gc中如果存活的对象的超过survivor的容量，放不下的对象会直接移入到tenured generation）</p>
+<p>tenured generation的gc称为major gc，就是通常说的full gc。</p>
+<p>采用compactiion算法。由于tenured generaion区域比较大，而且通常对象生命周期都比较长，compaction需要一定时间。所以这部分的gc时间比较长。</p>
+<p>minor gc可能引发full gc。当eden＋from space的空间大于tenured generation区的剩余空间时，会引发full gc。这是悲观算法，要确保eden＋from space的对象如果都存活，必须有足够的tenured generation空间存放这些对象。</p>
+<h4 id="permanent-generation"><a href="#permanent-generation" class="headerlink" title="permanent generation"></a>permanent generation</h4><p>该区域比较稳定，主要用于存放classloader信息，比如类信息和method信息。</p>
+<p>对于spring hibernate这些需要动态类型支持的框架，这个区域需要足够的空间。(这部分空间应该存在于方法区而不是heap中)。</p>
+<h3 id="adaptive算法-Adaptive-Collector"><a href="#adaptive算法-Adaptive-Collector" class="headerlink" title="adaptive算法(Adaptive Collector)"></a>adaptive算法(Adaptive Collector)</h3><p>在特定的情况下，一些垃圾收集算法会优于其它算法。基于Adaptive算法的垃圾收集器就是监控当前堆的使用情况，并将选择适当算法的垃圾收集器。</p>
+<p>转载于<a href="https://www.jianshu.com/p/7305b10decf1">https://www.jianshu.com/p/7305b10decf1</a></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>git使用流程</title>
+    <url>/2020/10/30/git%E4%BD%BF%E7%94%A8%E6%B5%81%E7%A8%8B/</url>
+    <content><![CDATA[<h1 id="git-fork"><a href="#git-fork" class="headerlink" title="git fork"></a>git fork</h1><pre><code>需求：B要加入A的项目，不论是作为B的初始项目进行二次开发还是成为A项目的一员加入一起开发，步骤如下：</code></pre>
+<h2 id="1-B首先要fork一个。"><a href="#1-B首先要fork一个。" class="headerlink" title="1.B首先要fork一个。"></a><strong>1.B首先要fork一个。</strong></h2><p><strong>B首先到A的github上，也就是此项目的位置:<a href="https://github.com/A/durit%EF%BC%8C%E7%84%B6%E5%90%8E%E5%8D%95%E5%87%BBfork%EF%BC%8C%E7%84%B6%E5%90%8E%E4%BD%A0%EF%BC%88B%EF%BC%89%E7%9A%84github%E4%B8%8A%E5%B0%B1%E5%87%BA%E7%8E%B0%E4%BA%86%E4%B8%80%E4%B8%AAfork%EF%BC%8C%E4%BD%8D%E7%BD%AE%E6%98%AF%EF%BC%9Ahttps://github.com/B/durit">https://github.com/A/durit，然后单击fork，然后你（B）的github上就出现了一个fork，位置是：https://github.com/B/durit</a></strong></p>
+<h2 id="2-B把自己的fork克隆到本地。"><a href="#2-B把自己的fork克隆到本地。" class="headerlink" title="2.B把自己的fork克隆到本地。"></a><strong>2.B把自己的fork克隆到本地。</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git <span class="built_in">clone</span> https://github.com/B/durit</span><br></pre></td></tr></table></figure>
+<p><strong>(当你clone到本地，会有一个默认的远程名叫”origin”，它指向了fork on github，也就是B上的fork，而不是指向A)</strong></p>
+<h2 id="3-现在你是主人，为了保持与A的durit的联系，你需要给A的durit起个名，供你来驱使。"><a href="#3-现在你是主人，为了保持与A的durit的联系，你需要给A的durit起个名，供你来驱使。" class="headerlink" title="3.现在你是主人，为了保持与A的durit的联系，你需要给A的durit起个名，供你来驱使。"></a><strong>3.现在你是主人，为了保持与A的durit的联系，你需要给A的durit起个名，供你来驱使。</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> durit</span><br><span class="line">$ git remote add upstream https://github.com/A/durit</span><br></pre></td></tr></table></figure>
+
+<p><strong>(现在改名为upstream，这名随意，现在你（B）管A的durit叫upstream，以后B就用upstream来和A的durit联系了)</strong></p>
+<h2 id="4-获取A上的更新-但不会修改你的文件-。"><a href="#4-获取A上的更新-但不会修改你的文件-。" class="headerlink" title="4.获取A上的更新(但不会修改你的文件)。"></a><strong>4.获取A上的更新(但不会修改你的文件)。</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git fetch upstream</span><br></pre></td></tr></table></figure>
+<p><strong>（这不，现在B就用upstream来联系A了）</strong></p>
+<h2 id="5-合并拉取的数据"><a href="#5-合并拉取的数据" class="headerlink" title="5.合并拉取的数据"></a><strong>5.合并拉取的数据</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git merge upstream/master</span><br></pre></td></tr></table></figure>
+<p><strong>（又联系了一次，upstream/master，前者是你要合并的数据，后者是你要合并到的数据（在这里就是B本地的durit了））</strong></p>
+<h2 id="6-在B修改了本地部分内容后，把本地的更改推送到B的远程github上。"><a href="#6-在B修改了本地部分内容后，把本地的更改推送到B的远程github上。" class="headerlink" title="6.在B修改了本地部分内容后，把本地的更改推送到B的远程github上。"></a><strong>6.在B修改了本地部分内容后，把本地的更改推送到B的远程github上。</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git add 修改过的文件</span><br><span class="line">$ git commit -m <span class="string">&quot;注释&quot;</span></span><br><span class="line">$ git push origin master</span><br></pre></td></tr></table></figure>
+<p><strong>（目前为止，B上的github就跟新了）</strong></p>
+<h2 id="7-然后B还想让修改过的内容也推送到A上，这就要发起pull-request了。"><a href="#7-然后B还想让修改过的内容也推送到A上，这就要发起pull-request了。" class="headerlink" title="7.然后B还想让修改过的内容也推送到A上，这就要发起pull request了。"></a><strong>7.然后B还想让修改过的内容也推送到A上，这就要发起pull request了。</strong></h2><pre><code>打开B的github,也就是https://github.com/B/durit
+点击Pull Requests
+单击new pull request
+单击create pull request
+输入title和你更改的内容
+然后单击send pull request
+这样B就完成了工作，然后就等着主人A来操作了。</code></pre>
+<h2 id="8-在B想要更新A的github上到内容时，结果冲突，因为B和A同时修改了文件，比如说是README-ME，该这样做："><a href="#8-在B想要更新A的github上到内容时，结果冲突，因为B和A同时修改了文件，比如说是README-ME，该这样做：" class="headerlink" title="8.在B想要更新A的github上到内容时，结果冲突，因为B和A同时修改了文件，比如说是README.ME，该这样做："></a><strong>8.在B想要更新A的github上到内容时，结果冲突，因为B和A同时修改了文件，比如说是README.ME，该这样做：</strong></h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git status(查看冲突文件)</span><br></pre></td></tr></table></figure>
+<p><strong>找到冲突文件(README.MD)后，打开并修改，解决冲突后</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git add README.MD</span><br><span class="line">$ git commit -m <span class="string">&quot;解决了冲突文件README.MD&quot;</span></span><br></pre></td></tr></table></figure>
+<p><strong>现在冲突解决了，可以更新A的内容了，也就是上面第4步和第5步</strong></p>
+]]></content>
+  </entry>
+  <entry>
     <title>博客搭建</title>
     <url>/2020/10/30/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</url>
     <content><![CDATA[<p>折腾了一天多，终于弄出来了，开心^o^</p>
-]]></content>
+<h2 id="博客创建到发布流程"><a href="#博客创建到发布流程" class="headerlink" title="博客创建到发布流程"></a>博客创建到发布流程</h2><h3 id="新建一篇文章"><a href="#新建一篇文章" class="headerlink" title="新建一篇文章"></a>新建一篇文章</h3><h4 id="在hexo博客目录下，进入Git-Bash命令窗口中，输入以下命令："><a href="#在hexo博客目录下，进入Git-Bash命令窗口中，输入以下命令：" class="headerlink" title="在hexo博客目录下，进入Git Bash命令窗口中，输入以下命令："></a>在hexo博客目录下，进入Git Bash命令窗口中，输入以下命令：</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo new &quot;在这里&quot;</span><br></pre></td></tr></table></figure>
+<h4 id="在博客目录下的-source-posts-文件夹下，可以看到已经生成了标题为-在这里-md-的博客文件："><a href="#在博客目录下的-source-posts-文件夹下，可以看到已经生成了标题为-在这里-md-的博客文件：" class="headerlink" title="在博客目录下的/source/_posts/ 文件夹下，可以看到已经生成了标题为(在这里.md)的博客文件："></a>在博客目录下的/source/_posts/ 文件夹下，可以看到已经生成了标题为(在这里.md)的博客文件：</h4><h4 id="在（在这里-md）文件中编辑自己的博客文章即可。"><a href="#在（在这里-md）文件中编辑自己的博客文章即可。" class="headerlink" title="在（在这里.md）文件中编辑自己的博客文章即可。"></a>在（在这里.md）文件中编辑自己的博客文章即可。</h4><p><em>注意：Hexo 发布的文章是 Markdown 格式的文件， Markdown 基本语法的网址：点这里前往</em></p>
+<h3 id="给文章添加分类和标签"><a href="#给文章添加分类和标签" class="headerlink" title="给文章添加分类和标签"></a>给文章添加分类和标签</h3><h4 id="在（在这里-md）文件中设置tags和categories属性："><a href="#在（在这里-md）文件中设置tags和categories属性：" class="headerlink" title="在（在这里.md）文件中设置tags和categories属性："></a>在（在这里.md）文件中设置tags和categories属性：</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">title: 在这里</span><br><span class="line">date: 2018-08-02 11:41:10</span><br><span class="line">tags:</span><br><span class="line">- 博客           &#x2F;&#x2F;多个标签可以这样添加</span><br><span class="line">- hexo</span><br><span class="line">categories: web前端</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="启动服务器，本地测试"><a href="#启动服务器，本地测试" class="headerlink" title="启动服务器，本地测试"></a>启动服务器，本地测试</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo s</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="添加“阅读全文”按钮"><a href="#添加“阅读全文”按钮" class="headerlink" title="添加“阅读全文”按钮"></a>添加“阅读全文”按钮</h3><p>####方法一：在文章任意你想添加的位置添加即可</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;!--more--&gt;</span><br></pre></td></tr></table></figure>
+<p>例如：<br>在这里.md里面的内容是：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">---</span><br><span class="line">title: 在这里</span><br><span class="line">date: 2018-08-02 11:41:10</span><br><span class="line">tags:</span><br><span class="line">- 博客</span><br><span class="line">- hexo</span><br><span class="line">categories: web前端</span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">javascript是一门充满活力、简单易用的语言，又是一门具有许多复杂微妙技术的语言。即使是经验丰富的javascript开发者，如果没有认真学习的话，也无法真正理解它们，这就是javascript的矛盾之处。由于javascript不必理解就可以使用，因此通常来说很难真正理解语言本身，这就是我们面临的挑战。不满足于只是让代码正常工作，而是想要弄清楚为什么，勇于挑战这条崎岖颠簸的少有人走的路，拥抱整个javascript</span><br><span class="line">&lt;!--more--&gt;</span><br><span class="line">后面的内容在首页不显示，只显示到&lt;!--more--&gt;这里</span><br></pre></td></tr></table></figure>
+<p>在页面中显示的效果是：</p>
+<p><img src="https://winney07.github.io/2018/08/02/%E5%9C%A8Hexo%E5%8D%9A%E5%AE%A2%E4%B8%AD%E5%8F%91%E5%B8%83%E6%96%87%E7%AB%A0/zai-more.png" alt="header"></p>
+<h4 id="方法二：设置首页文章以摘要形式显示，打开主题配置文件，找到auto-excerpt进行修改："><a href="#方法二：设置首页文章以摘要形式显示，打开主题配置文件，找到auto-excerpt进行修改：" class="headerlink" title="方法二：设置首页文章以摘要形式显示，打开主题配置文件，找到auto_excerpt进行修改："></a>方法二：设置首页文章以摘要形式显示，打开主题配置文件，找到auto_excerpt进行修改：</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">auto_excerpt:</span><br><span class="line">  enable: true</span><br><span class="line">  length: 150</span><br></pre></td></tr></table></figure>
+<p>其中length代表显示摘要的截取字符长度。<br>注：这两种方法，在博客首页显示的效果不一样，根据自己的需要，选择自己喜欢的方法</p>
+<h3 id="在博文中添加图片"><a href="#在博文中添加图片" class="headerlink" title="在博文中添加图片"></a>在博文中添加图片</h3><h4 id="方法一："><a href="#方法一：" class="headerlink" title="方法一："></a>方法一：</h4><h5 id="在hexo目录下，安装插件："><a href="#在hexo目录下，安装插件：" class="headerlink" title="在hexo目录下，安装插件："></a>在hexo目录下，安装插件：</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install hexo-asset-image --save</span><br></pre></td></tr></table></figure>
+<h5 id="在hexo-source-目录下新建一个img文件夹，把图片放置在里面；"><a href="#在hexo-source-目录下新建一个img文件夹，把图片放置在里面；" class="headerlink" title="在hexo\source 目录下新建一个img文件夹，把图片放置在里面；"></a>在hexo\source 目录下新建一个img文件夹，把图片放置在里面；</h5><h5 id="在xxx-md文件中引用图片："><a href="#在xxx-md文件中引用图片：" class="headerlink" title="在xxx.md文件中引用图片："></a>在xxx.md文件中引用图片：</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">![header]( img&#x2F;header.jpg)</span><br></pre></td></tr></table></figure>
+<h4 id="方法二："><a href="#方法二：" class="headerlink" title="方法二："></a>方法二：</h4><h5 id="在全局配置文件（hexo-config-yml-中将post-asset-folder设置为true；"><a href="#在全局配置文件（hexo-config-yml-中将post-asset-folder设置为true；" class="headerlink" title="在全局配置文件（hexo/_config.yml)中将post_asset_folder设置为true；"></a>在全局配置文件（hexo/_config.yml)中将post_asset_folder设置为true；</h5><h5 id="创建文章（在创建的时候，会在hexo-source-post目录下，生成一个XXX-md文件和一个XXX的文件夹）："><a href="#创建文章（在创建的时候，会在hexo-source-post目录下，生成一个XXX-md文件和一个XXX的文件夹）：" class="headerlink" title="创建文章（在创建的时候，会在hexo/source/_post目录下，生成一个XXX.md文件和一个XXX的文件夹）："></a>创建文章（在创建的时候，会在hexo/source/_post目录下，生成一个XXX.md文件和一个XXX的文件夹）：</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo new &quot;XXX&quot;</span><br></pre></td></tr></table></figure>
+<h5 id="把XXX这个博文需要展示的图片放在XXX文件夹目录下；"><a href="#把XXX这个博文需要展示的图片放在XXX文件夹目录下；" class="headerlink" title="把XXX这个博文需要展示的图片放在XXX文件夹目录下；"></a>把XXX这个博文需要展示的图片放在XXX文件夹目录下；</h5><h5 id="在XXX-md文件中引入图片的方式："><a href="#在XXX-md文件中引入图片的方式：" class="headerlink" title="在XXX.md文件中引入图片的方式："></a>在XXX.md文件中引入图片的方式：</h5>
+<h3 id="发布到Github上"><a href="#发布到Github上" class="headerlink" title="发布到Github上"></a>发布到Github上</h3><h4 id="发表的文章在本地预览无误后，在-Git-Bash-命令窗口执行以下命令："><a href="#发表的文章在本地预览无误后，在-Git-Bash-命令窗口执行以下命令：" class="headerlink" title="发表的文章在本地预览无误后，在 Git Bash 命令窗口执行以下命令："></a>发表的文章在本地预览无误后，在 Git Bash 命令窗口执行以下命令：</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo clean &amp;&amp; hexo g &amp;&amp; hexo d</span><br></pre></td></tr></table></figure>
+<h4 id="在浏览器，访问自己的博客域名，即可看到刚-发布的文章"><a href="#在浏览器，访问自己的博客域名，即可看到刚-发布的文章" class="headerlink" title="在浏览器，访问自己的博客域名，即可看到刚 发布的文章"></a>在浏览器，访问自己的博客域名，即可看到刚 发布的文章</h4>]]></content>
   </entry>
   <entry>
     <title>Hello World</title>
