@@ -25,6 +25,9 @@
 <h3 id="adaptive算法-Adaptive-Collector"><a href="#adaptive算法-Adaptive-Collector" class="headerlink" title="adaptive算法(Adaptive Collector)"></a>adaptive算法(Adaptive Collector)</h3><p>在特定的情况下，一些垃圾收集算法会优于其它算法。基于Adaptive算法的垃圾收集器就是监控当前堆的使用情况，并将选择适当算法的垃圾收集器。</p>
 <p>转载于<a href="https://www.jianshu.com/p/7305b10decf1">https://www.jianshu.com/p/7305b10decf1</a></p>
 ]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
   </entry>
   <entry>
     <title>git使用流程</title>
@@ -54,6 +57,59 @@
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git add README.MD</span><br><span class="line">$ git commit -m <span class="string">&quot;解决了冲突文件README.MD&quot;</span></span><br></pre></td></tr></table></figure>
 <p><strong>现在冲突解决了，可以更新A的内容了，也就是上面第4步和第5步</strong></p>
 ]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2020/10/30/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>Mac下更换Homebrew镜像源</title>
+    <url>/2020/12/18/Mac%E4%B8%8B%E6%9B%B4%E6%8D%A2Homebrew%E9%95%9C%E5%83%8F%E6%BA%90/</url>
+    <content><![CDATA[<p>1.使用中科大源<br>（1）替换默认源<br>第一步：替换brew.git</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd &quot;$(brew --repo)&quot;</span><br><span class="line"></span><br><span class="line">git remote set-url origin https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;brew.git</span><br></pre></td></tr></table></figure>
+<p>第二步：替换homebrew-core.git</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd &quot;$(brew --repo)&#x2F;Library&#x2F;Taps&#x2F;homebrew&#x2F;homebrew-core&quot;</span><br><span class="line"></span><br><span class="line">git remote set-url origin https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;homebrew-core.git</span><br><span class="line"></span><br><span class="line">cd </span><br><span class="line"></span><br><span class="line">brew update</span><br></pre></td></tr></table></figure>
+<p>（2）替换Homebrew Bottles源</p>
+<p>Homebrew是OS X系统的一款开源的包管理器。出于节省时间的考虑，Homebrew默认从Homebrew Bottles源中下载二进制代码包安装。Homebrew Bottles是Homebrew提供的二进制代码包，目前镜像站收录了以下仓库：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">homebrew&#x2F;homebrew-core</span><br><span class="line">homebrew&#x2F;homebrew-dupes</span><br><span class="line">homebrew&#x2F;homebrew-games</span><br><span class="line">homebrew&#x2F;homebrew-gui</span><br><span class="line">homebrew&#x2F;homebrew-python</span><br><span class="line">homebrew&#x2F;homebrew-php</span><br><span class="line">homebrew&#x2F;homebrew-science</span><br><span class="line">homebrew&#x2F;homebrew-versions</span><br><span class="line">homebrew&#x2F;homebrew-x11</span><br></pre></td></tr></table></figure>
+<p>对于bash用户：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">echo &#39;export HOMEBREW_BOTTLE_DOMAIN&#x3D;https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;homebrew-bottles&#39; &gt;&gt; ~&#x2F;.bash_profile</span><br><span class="line"></span><br><span class="line">source ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure>
+<p>对于zsh用户</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">echo &#39;export HOMEBREW_BOTTLE_DOMAIN&#x3D;https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;homebrew-bottles&#39; &gt;&gt; ~&#x2F;.zshrc</span><br><span class="line"></span><br><span class="line">source ~&#x2F;.zshrc</span><br></pre></td></tr></table></figure>
+<p>2.使用清华源<br>（1）替换默认源<br>第一步：替换现有上游</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd &quot;$(brew --repo)&quot;</span><br><span class="line"></span><br><span class="line">git remote set-url origin https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;git&#x2F;homebrew&#x2F;brew.git</span><br><span class="line"></span><br><span class="line">cd &quot;$(brew --repo)&#x2F;Library&#x2F;Taps&#x2F;homebrew&#x2F;homebrew-core&quot;</span><br><span class="line"></span><br><span class="line">git remote set-url origin https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;git&#x2F;homebrew&#x2F;homebrew-core.git</span><br><span class="line"></span><br><span class="line">cd </span><br><span class="line"></span><br><span class="line">brew update</span><br></pre></td></tr></table></figure>
+<p>第二步：使用homebrew-science或者homebrew-python</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd &quot;$(brew --repo)&#x2F;Library&#x2F;Taps&#x2F;homebrew&#x2F;homebrew-science&quot;</span><br><span class="line"></span><br><span class="line">git remote set-url origin https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;git&#x2F;homebrew&#x2F;homebrew-science.git</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd &quot;$(brew --repo)&#x2F;Library&#x2F;Taps&#x2F;homebrew&#x2F;homebrew-python&quot;</span><br><span class="line"></span><br><span class="line">git remote set-url origin https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;git&#x2F;homebrew&#x2F;homebrew-python.git</span><br><span class="line"></span><br><span class="line">cd </span><br><span class="line"></span><br><span class="line">brew update</span><br></pre></td></tr></table></figure>
+<p>（2）替换Homebrew Bottles源</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">echo &#39;export HOMEBREW_BOTTLE_DOMAIN&#x3D;https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;homebrew-bottles&#39; &gt;&gt; ~&#x2F;.bash_profile</span><br><span class="line"></span><br><span class="line">source ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure>
+<p>3.在中科大源或清华源失效或宕机时可以切换回官方源<br>第一步：重置brew.git</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd &quot;$(brew --repo)&quot;</span><br><span class="line"></span><br><span class="line">git remote set-url origin https:&#x2F;&#x2F;github.com&#x2F;Homebrew&#x2F;brew.git</span><br></pre></td></tr></table></figure>
+<p>第二步：重置homebrew-core.git</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd &quot;$(brew --repo)&#x2F;Library&#x2F;Taps&#x2F;homebrew&#x2F;homebrew-core&quot;</span><br><span class="line"></span><br><span class="line">git remote set-url origin https:&#x2F;&#x2F;github.com&#x2F;Homebrew&#x2F;homebrew-core.git</span><br><span class="line"></span><br><span class="line">cd</span><br><span class="line"></span><br><span class="line">brew update</span><br></pre></td></tr></table></figure>
+<p>第三步：注释掉bash配置文件里的有关Homebrew Bottles即可恢复官方源。 重启bash或让bash重读配置文件。</p>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
   </entry>
   <entry>
     <title>博客搭建</title>
@@ -81,24 +137,9 @@
 <h5 id="把XXX这个博文需要展示的图片放在XXX文件夹目录下；"><a href="#把XXX这个博文需要展示的图片放在XXX文件夹目录下；" class="headerlink" title="把XXX这个博文需要展示的图片放在XXX文件夹目录下；"></a>把XXX这个博文需要展示的图片放在XXX文件夹目录下；</h5><h5 id="在XXX-md文件中引入图片的方式："><a href="#在XXX-md文件中引入图片的方式：" class="headerlink" title="在XXX.md文件中引入图片的方式："></a>在XXX.md文件中引入图片的方式：</h5>
 <h3 id="发布到Github上"><a href="#发布到Github上" class="headerlink" title="发布到Github上"></a>发布到Github上</h3><h4 id="发表的文章在本地预览无误后，在-Git-Bash-命令窗口执行以下命令："><a href="#发表的文章在本地预览无误后，在-Git-Bash-命令窗口执行以下命令：" class="headerlink" title="发表的文章在本地预览无误后，在 Git Bash 命令窗口执行以下命令："></a>发表的文章在本地预览无误后，在 Git Bash 命令窗口执行以下命令：</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo clean &amp;&amp; hexo g &amp;&amp; hexo d</span><br></pre></td></tr></table></figure>
 <h4 id="在浏览器，访问自己的博客域名，即可看到刚-发布的文章"><a href="#在浏览器，访问自己的博客域名，即可看到刚-发布的文章" class="headerlink" title="在浏览器，访问自己的博客域名，即可看到刚 发布的文章"></a>在浏览器，访问自己的博客域名，即可看到刚 发布的文章</h4>]]></content>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/2020/10/30/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
   </entry>
   <entry>
     <title>安全渗透初识</title>
@@ -187,5 +228,8 @@
 <h2 id="nmap使用"><a href="#nmap使用" class="headerlink" title="nmap使用"></a>nmap使用</h2><p><img src="https://upload-images.jianshu.io/upload_images/3601906-08bd9b540ad32c25.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="123.png"></p>
 <p>linux 系统命令集<br><img src="/images/linux_perf_tools_full.png" alt="images"></p>
 ]]></content>
+      <categories>
+        <category>安全</category>
+      </categories>
   </entry>
 </search>
